@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Alert } from '@mui/material';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Alert, TablePagination } from '@mui/material';
 
 function UserView() {
     // Mock tenders for now (replace this with real data later)
@@ -9,7 +9,7 @@ function UserView() {
             name: 'Road Construction',
             description: 'Construction of a 10 km road',
             startTime: '2024-11-01T10:00',
-            endTime: '2024-11-26T09:01',
+            endTime: '2024-11-27T18:01',
             bufferTime: 10,
         },
         {
@@ -17,10 +17,22 @@ function UserView() {
             name: 'Bridge Renovation',
             description: 'Renovation of the main city bridge',
             startTime: '2024-11-02T08:00',
-            endTime: '2024-11-26T08:58',
+            endTime: '2024-11-27T18:02',
             bufferTime: 15,
         },
     ]);
+
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(2);
+
+    const handleChangePage = (event, page) => {
+        setPage(page);
+    }
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0); //Reset to first page
+    }
 
     const [bids, setBids] = useState([]); // List of submitted bids
     const [currentBid, setCurrentBid] = useState(''); // Current bid input
@@ -123,7 +135,9 @@ function UserView() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {tenders.map((tender) => (
+                        {tenders
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage ) // Paginate rows
+                        .map((tender) => (
                             <TableRow key={tender.id}>
                                 <TableCell>{tender.name}</TableCell>
                                 <TableCell>{tender.description}</TableCell>
@@ -154,6 +168,18 @@ function UserView() {
                 </Table>
             </TableContainer>
 
+            {/* Pagination */}
+
+            <TablePagination
+            component="div"
+            count={tenders.length}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+
+            
             {/* Lowest Bid Display */}
             {bids.length > 0 && (
                 <Box>
